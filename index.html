@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Review Ka?</title>
+<meta name="theme-color" content="#14181F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Review Ka?">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Review Ka%3F","short_name":"Review Ka%3F","start_url":"./index.html","display":"standalone","background_color":"%2314181F","theme_color":"%2314181F","icons":[]}'>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2314181F'/%3E%3Cpath d='M20 30h25l6 8h29a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z' fill='%23D9A441'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2314181F'/%3E%3Cpath d='M20 30h25l6 8h29a4 4 0 0 1 4 4v34a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z' fill='%23D9A441'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#11141B;
+    --bg-2:#161A23;
+    --surface:#1B212B;
+    --surface-2:#232A36;
+    --line:#2A313E;
+    --text:#EFEBE1;
+    --text-dim:#98A0AC;
+    --amber:#E0A83E;
+    --amber-dim:#8a6a2c;
+    --danger:#C1554A;
+    --tab-1:#4F8271;
+    --tab-2:#C06B4C;
+    --tab-3:#7086BE;
+    --tab-4:#D1A94C;
+    --tab-5:#9575BE;
+    --tab-6:#5FA4B0;
+    --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(ellipse 900px 500px at 50% -10%, var(--bg-2), var(--bg) 65%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overflow-x:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .display{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; letter-spacing:-.01em;}
+
+  header{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(var(--bg) 70%, transparent);
+    padding:calc(14px + env(safe-area-inset-top)) 16px 10px;
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:8px; margin-bottom:14px;
+  }
+  .brand .mark{color:var(--amber); font-size:22px;}
+  .brand h1{font-size:19px; margin:0; font-weight:600; letter-spacing:.2px;}
+  .brand .sub{color:var(--text-dim); font-size:12px; letter-spacing:.6px; text-transform:uppercase;}
+
+  .crumbs{
+    display:flex; align-items:center; gap:6px; overflow-x:auto;
+    scrollbar-width:none; padding-bottom:2px;
+  }
+  .crumbs::-webkit-scrollbar{display:none;}
+  .crumb{
+    font-size:13.5px; color:var(--text-dim); white-space:nowrap;
+    padding:6px 4px; border-radius:8px; cursor:pointer;
+  }
+  .crumb.current{color:var(--text); font-weight:600;}
+  .crumb-sep{color:var(--line); font-size:13px;}
+
+  main{padding:6px 16px 120px;}
+
+  .section-label{
+    font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase;
+    color:var(--text-dim); margin:18px 2px 10px;
+  }
+
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--text-dim);
+  }
+  .empty .glyph{font-size:38px; margin-bottom:10px; display:block;}
+  .empty .display{font-size:19px; color:var(--text); margin-bottom:6px; font-weight:700;}
+  .empty p{font-size:13.5px; line-height:1.5; margin:0;}
+
+  .folder-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .folder-card{
+    position:relative; background:linear-gradient(165deg, var(--surface-2), var(--surface));
+    border-radius:var(--radius);
+    padding:18px 13px 13px; min-height:84px;
+    border:1px solid var(--line);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    overflow:hidden;
+    box-shadow:0 3px 10px rgba(0,0,0,.18);
+    transition:transform .16s ease, box-shadow .16s ease;
+  }
+  .folder-card .tab{
+    position:absolute; top:0; left:14px; width:36px; height:8px;
+    border-radius:0 0 5px 5px;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+  }
+  .folder-card .fname{
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:15.5px; font-weight:700;
+    line-height:1.25; word-break:break-word;
+  }
+  .folder-card .fmeta{font-size:11px; color:var(--text-dim); margin-top:4px;}
+  .folder-card:active{transform:scale(.96) translateY(1px); box-shadow:0 1px 4px rgba(0,0,0,.15);}
+
+  /* ---- intro splash ---- */
+  #introSplash{
+    position:fixed; inset:0; z-index:100; background:var(--bg);
+    background-image:radial-gradient(ellipse 900px 500px at 50% 20%, var(--bg-2), var(--bg) 65%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease, visibility .5s;
+  }
+  #introSplash.hide{opacity:0; visibility:hidden; pointer-events:none;}
+  .intro-stack{position:relative; width:120px; height:90px; margin-bottom:26px;}
+  .intro-stack .leaf{
+    position:absolute; bottom:0; left:50%; width:96px; height:70px;
+    border-radius:10px; transform:translateX(-50%) translateY(40px) rotate(0deg) scale(.8);
+    opacity:0; box-shadow:0 8px 18px rgba(0,0,0,.3);
+    animation:leafIn .6s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  .intro-stack .leaf:nth-child(1){background:var(--tab-3); animation-delay:.05s; transform:translateX(-50%) translateY(40px) rotate(-8deg) scale(.8);}
+  .intro-stack .leaf:nth-child(2){background:var(--tab-2); animation-delay:.18s; transform:translateX(-50%) translateY(40px) rotate(6deg) scale(.8);}
+  .intro-stack .leaf:nth-child(3){background:var(--tab-4); animation-delay:.31s; transform:translateX(-50%) translateY(40px) rotate(-2deg) scale(.8);}
+  @keyframes leafIn{
+    to{ opacity:1; transform:translateX(-50%) translateY(0) rotate(var(--rot,0deg)) scale(1); }
+  }
+  .intro-stack .leaf:nth-child(1){--rot:-6deg;}
+  .intro-stack .leaf:nth-child(2){--rot:4deg;}
+  .intro-stack .leaf:nth-child(3){--rot:0deg;}
+  .intro-title{
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    font-size:26px; font-weight:700; letter-spacing:-.01em; color:var(--text);
+    opacity:0; animation:fadeUp .5s ease .5s forwards;
+  }
+  .intro-sub{
+    font-size:13px; color:var(--text-dim); margin-top:6px; letter-spacing:.3px;
+    opacity:0; animation:fadeUp .5s ease .62s forwards;
+  }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .file-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:12px; padding:10px 10px; margin-bottom:8px;
+  }
+  .file-icon{
+    width:38px; height:38px; border-radius:9px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; color:#14181F;
+    overflow:hidden; background:var(--tab-4);
+  }
+  .file-icon img{width:100%; height:100%; object-fit:cover;}
+  .file-main{flex:1; min-width:0;}
+  .file-name{font-size:14.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .file-meta{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+  .kebab{
+    flex:none; width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:18px; background:transparent; border:none;
+  }
+  .kebab:active{background:var(--surface-2);}
+
+  .fab{
+    position:fixed; right:20px; bottom:calc(22px + env(safe-area-inset-bottom));
+    width:58px; height:58px; border-radius:50%;
+    background:linear-gradient(155deg, #ECB859, var(--amber));
+    color:#181008; border:none;
+    font-size:28px; font-weight:400; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 20px rgba(224,168,62,.4); z-index:30;
+    transition:transform .18s ease;
+  }
+  .fab:active{transform:scale(.94) rotate(45deg);}
+
+  .sheet-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:40;
+    opacity:0; pointer-events:none; transition:opacity .18s;
+  }
+  .sheet-backdrop.show{opacity:1; pointer-events:auto;}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; z-index:41;
+    background:var(--surface); border-radius:20px 20px 0 0;
+    padding:10px 18px calc(20px + env(safe-area-inset-bottom));
+    transform:translateY(105%); transition:transform .22s cubic-bezier(.2,.8,.3,1);
+    max-height:78vh; overflow-y:auto;
+  }
+  .sheet.show{transform:translateY(0);}
+  .sheet-handle{width:36px; height:4px; background:var(--line); border-radius:3px; margin:8px auto 14px;}
+  .sheet h3{font-family:Georgia,serif; font-size:17px; margin:0 0 4px;}
+  .sheet p.hint{font-size:12.5px; color:var(--text-dim); margin:0 0 14px;}
+  .sheet-item{
+    display:flex; align-items:center; gap:14px; padding:14px 6px;
+    border-bottom:1px solid var(--line); font-size:15px;
+  }
+  .sheet-item:last-child{border-bottom:none;}
+  .sheet-item .ic{
+    width:36px; height:36px; border-radius:10px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; font-size:17px; flex:none;
+  }
+  .sheet-item.danger{color:var(--danger);}
+  .sheet input[type=text]{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    color:var(--text); border-radius:10px; padding:12px 14px; font-size:15px;
+    margin-bottom:14px;
+  }
+  .sheet .btn-row{display:flex; gap:10px;}
+  .btn{
+    flex:1; padding:13px; border-radius:10px; border:none; font-size:14.5px; font-weight:600;
+  }
+  .btn.primary{background:var(--amber); color:#14181F;}
+  .btn.ghost{background:var(--surface-2); color:var(--text);}
+  .btn:active{opacity:.8;}
+
+  .folder-pick-item{
+    display:flex; align-items:center; gap:10px; padding:12px 6px;
+    border-bottom:1px solid var(--line); font-size:14.5px;
+  }
+  .folder-pick-item .dot{width:10px; height:10px; border-radius:3px; flex:none;}
+
+  .toast{
+    position:fixed; left:50%; bottom:100px; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-2); color:var(--text); padding:10px 18px; border-radius:30px;
+    font-size:13.5px; z-index:60; opacity:0; transition:all .25s; pointer-events:none;
+    border:1px solid var(--line);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  #viewerOverlay{
+    position:fixed; inset:0; background:#000; z-index:70; display:none;
+    flex-direction:column;
+  }
+  #viewerOverlay.show{display:flex;}
+  #viewerOverlay header{background:#000; display:flex; align-items:center; gap:12px; padding-top:calc(14px + env(safe-area-inset-top));}
+  #viewerOverlay .vclose{font-size:22px; color:var(--text); background:none; border:none; padding:4px 8px;}
+  #viewerOverlay .vname{font-size:14px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #viewerBody{flex:1; display:flex; align-items:center; justify-content:center; overflow:auto;}
+  #viewerBody img{max-width:100%; max-height:100%;}
+  #viewerBody iframe{width:100%; height:100%; border:none;}
+</style>
+</head>
+<body>
+
+<div id="introSplash">
+  <div class="intro-stack">
+    <div class="leaf"></div>
+    <div class="leaf"></div>
+    <div class="leaf"></div>
+  </div>
+  <div class="intro-title">Review Ka?</div>
+  <div class="intro-sub">Your subjects, sorted.</div>
+</div>
+
+<header>
+  <div class="brand">
+    <span class="mark">&#9679;</span>
+    <h1>Review Ka?</h1>
+  </div>
+  <div class="crumbs" id="crumbs"></div>
+</header>
+
+<main id="main"></main>
+
+<button class="fab" id="fabBtn">+</button>
+
+<div class="sheet-backdrop" id="backdrop"></div>
+
+<div class="sheet" id="addSheet">
+  <div class="sheet-handle"></div>
+  <h3>Add to this folder</h3>
+  <p class="hint">Create a subfolder or upload files from your phone.</p>
+  <div class="sheet-item" id="actNewFolder"><div class="ic">&#128193;</div> New folder</div>
+  <div class="sheet-item" id="actUpload"><div class="ic">&#8593;</div> Upload files or photos</div>
+</div>
+
+<div class="sheet" id="newFolderSheet">
+  <div class="sheet-handle"></div>
+  <h3>New folder</h3>
+  <p class="hint">e.g. "Gen Bio" or "Cell Structure"</p>
+  <input type="text" id="newFolderInput" placeholder="Folder name" maxlength="60">
+  <div class="btn-row">
+    <button class="btn ghost" id="cancelNewFolder">Cancel</button>
+    <button class="btn primary" id="confirmNewFolder">Create</button>
+  </div>
+</div>
+
+<div class="sheet" id="renameSheet">
+  <div class="sheet-handle"></div>
+  <h3>Rename</h3>
+  <input type="text" id="renameInput" maxlength="80">
+  <div class="btn-row">
+    <button class="btn ghost" id="cancelRename">Cancel</button>
+    <button class="btn primary" id="confirmRename">Save</button>
+  </div>
+</div>
+
+<div class="sheet" id="itemMenuSheet">
+  <div class="sheet-handle"></div>
+  <h3 id="itemMenuTitle">Item</h3>
+  <div class="sheet-item" id="menuOpen"><div class="ic">&#128065;</div> Open</div>
+  <div class="sheet-item" id="menuRename"><div class="ic">&#9998;</div> Rename</div>
+  <div class="sheet-item" id="menuMove"><div class="ic">&#8646;</div> Move to folder</div>
+  <div class="sheet-item danger" id="menuDelete"><div class="ic">&#128465;</div> Delete</div>
+</div>
+
+<div class="sheet" id="moveSheet">
+  <div class="sheet-handle"></div>
+  <h3>Move to&hellip;</h3>
+  <p class="hint">Choose a destination folder.</p>
+  <div id="moveList"></div>
+</div>
+
+<input type="file" id="fileInput" multiple style="display:none">
+
+<div class="toast" id="toast"></div>
+
+<div id="viewerOverlay">
+  <header>
+    <button class="vclose" id="viewerClose">&#8592;</button>
+    <span class="vname" id="viewerName"></span>
+  </header>
+  <div id="viewerBody"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- DB ----------
+  var DB_NAME = "studyvault_db", DB_VERSION = 1, db;
+  function openDB(){
+    return new Promise(function(resolve,reject){
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function(e){
+        var d = e.target.result;
+        if(!d.objectStoreNames.contains("nodes")){
+          var store = d.createObjectStore("nodes", {keyPath:"id"});
+          store.createIndex("parentId", "parentId", {unique:false});
+        }
+      };
+      req.onsuccess = function(e){ db = e.target.result; resolve(db); };
+      req.onerror = function(e){ reject(e); };
+    });
+  }
+  function tx(mode){ return db.transaction("nodes", mode).objectStore("nodes"); }
+  function dbGetAllByParent(parentId){
+    return new Promise(function(resolve,reject){
+      var store = tx("readonly");
+      var idx = store.index("parentId");
+      var req = idx.getAll(IDBKeyRange.only(parentId));
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = reject;
+    });
+  }
+  function dbGet(id){
+    return new Promise(function(resolve,reject){
+      var req = tx("readonly").get(id);
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = reject;
+    });
+  }
+  function dbPut(node){
+    return new Promise(function(resolve,reject){
+      var req = tx("readwrite").put(node);
+      req.onsuccess = function(){ resolve(node); };
+      req.onerror = reject;
+    });
+  }
+  function dbDelete(id){
+    return new Promise(function(resolve,reject){
+      var req = tx("readwrite").delete(id);
+      req.onsuccess = function(){ resolve(); };
+      req.onerror = reject;
+    });
+  }
+  function dbGetAll(){
+    return new Promise(function(resolve,reject){
+      var req = tx("readonly").getAll();
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = reject;
+    });
+  }
+
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+  async function ensureRoot(){
+    var root = await dbGet("root");
+    if(!root){
+      root = {id:"root", parentId:null, type:"folder", name:"Review Ka?", createdAt:Date.now()};
+      await dbPut(root);
+    }
+  }
+
+  // ---------- State ----------
+  var state = { currentFolder: "root", path: [] };
+  var TAB_COLORS = ["--tab-1","--tab-2","--tab-3","--tab-4","--tab-5","--tab-6"];
+
+  function colorForName(name){
+    var h = 0;
+    for(var i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+    return "var("+TAB_COLORS[h % TAB_COLORS.length]+")";
+  }
+
+  function fmtSize(bytes){
+    if(bytes == null) return "";
+    if(bytes < 1024) return bytes + " B";
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(0) + " KB";
+    return (bytes/1024/1024).toFixed(1) + " MB";
+  }
+  function fmtDate(ts){
+    var d = new Date(ts);
+    return d.toLocaleDateString(undefined,{month:"short", day:"numeric"});
+  }
+  function extIcon(mime, name){
+    var n = (name||"").toLowerCase();
+    if((mime||"").indexOf("image") === 0) return {label:"", isImage:true};
+    if(n.endsWith(".pdf")) return {label:"PDF", color:"var(--tab-2)"};
+    if(n.endsWith(".ppt") || n.endsWith(".pptx")) return {label:"PPT", color:"var(--tab-3)"};
+    if(n.endsWith(".doc") || n.endsWith(".docx")) return {label:"DOC", color:"var(--tab-6)"};
+    if(n.endsWith(".xls") || n.endsWith(".xlsx")) return {label:"XLS", color:"var(--tab-1)"};
+    return {label:"FILE", color:"var(--tab-5)"};
+  }
+
+  // ---------- Rendering ----------
+  var mainEl = document.getElementById("main");
+  var crumbsEl = document.getElementById("crumbs");
+
+  async function buildPathTo(folderId){
+    var path = [];
+    var cur = folderId;
+    while(cur){
+      var node = await dbGet(cur);
+      if(!node) break;
+      path.unshift(node);
+      cur = node.parentId;
+    }
+    return path;
+  }
+
+  async function renderCrumbs(){
+    var path = await buildPathTo(state.currentFolder);
+    crumbsEl.innerHTML = "";
+    path.forEach(function(node, i){
+      if(i > 0){
+        var sep = document.createElement("span");
+        sep.className = "crumb-sep"; sep.textContent = "/";
+        crumbsEl.appendChild(sep);
+      }
+      var el = document.createElement("span");
+      el.className = "crumb" + (i === path.length-1 ? " current" : "");
+      el.textContent = node.id === "root" ? "Home" : node.name;
+      el.onclick = function(){ if(node.id !== state.currentFolder){ navigateTo(node.id); } };
+      crumbsEl.appendChild(el);
+    });
+  }
+
+  async function navigateTo(folderId){
+    state.currentFolder = folderId;
+    await renderAll();
+  }
+
+  async function renderAll(){
+    await renderCrumbs();
+    var children = await dbGetAllByParent(state.currentFolder);
+    children.sort(function(a,b){
+      if(a.type !== b.type) return a.type === "folder" ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    var folders = children.filter(function(c){ return c.type === "folder"; });
+    var files = children.filter(function(c){ return c.type === "file"; });
+
+    mainEl.innerHTML = "";
+
+    if(children.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML = '<span class="glyph">&#128194;</span>' +
+        '<div class="display">Nothing here yet</div>' +
+        '<p>Tap the + button to add a subfolder<br>or upload your review files.</p>';
+      mainEl.appendChild(empty);
+      return;
+    }
+
+    if(folders.length){
+      var flabel = document.createElement("div");
+      flabel.className = "section-label";
+      flabel.textContent = "Folders";
+      mainEl.appendChild(flabel);
+
+      var grid = document.createElement("div");
+      grid.className = "folder-grid";
+      folders.forEach(function(f){
+        var card = document.createElement("div");
+        card.className = "folder-card";
+        var tab = document.createElement("div");
+        tab.className = "tab";
+        tab.style.background = colorForName(f.name);
+        card.appendChild(tab);
+        var fname = document.createElement("div");
+        fname.className = "fname";
+        fname.textContent = f.name;
+        card.appendChild(fname);
+        var fmeta = document.createElement("div");
+        fmeta.className = "fmeta";
+        fmeta.textContent = "Folder";
+        card.appendChild(fmeta);
+        card.onclick = function(){ navigateTo(f.id); };
+        card.oncontextmenu = function(e){ e.preventDefault(); openItemMenu(f); };
+        var pressTimer;
+        card.addEventListener("touchstart", function(){ pressTimer = setTimeout(function(){ openItemMenu(f); }, 480); });
+        card.addEventListener("touchend", function(){ clearTimeout(pressTimer); });
+        grid.appendChild(card);
+      });
+      mainEl.appendChild(grid);
+    }
+
+    if(files.length){
+      var lbl = document.createElement("div");
+      lbl.className = "section-label";
+      lbl.textContent = "Files";
+      mainEl.appendChild(lbl);
+
+      files.forEach(function(f){
+        var row = document.createElement("div");
+        row.className = "file-row";
+
+        var icon = document.createElement("div");
+        icon.className = "file-icon";
+        var meta = extIcon(f.mimeType, f.name);
+        if(meta.isImage && f.blob){
+          var img = document.createElement("img");
+          img.src = URL.createObjectURL(f.blob);
+          icon.appendChild(img);
+        } else {
+          icon.style.background = meta.color;
+          icon.textContent = meta.label;
+          icon.style.fontSize = "10.5px";
+        }
+        row.appendChild(icon);
+
+        var fmain = document.createElement("div");
+        fmain.className = "file-main";
+        var fn = document.createElement("div");
+        fn.className = "file-name";
+        fn.textContent = f.name;
+        var fmt = document.createElement("div");
+        fmt.className = "file-meta";
+        fmt.textContent = fmtSize(f.size) + " \u00b7 " + fmtDate(f.createdAt);
+        fmain.appendChild(fn); fmain.appendChild(fmt);
+        row.appendChild(fmain);
+
+        var kebab = document.createElement("button");
+        kebab.className = "kebab";
+        kebab.textContent = "\u22EF";
+        kebab.onclick = function(e){ e.stopPropagation(); openItemMenu(f); };
+        row.appendChild(kebab);
+
+        row.onclick = function(){ openFile(f); };
+
+        mainEl.appendChild(row);
+      });
+    }
+  }
+
+  // ---------- Viewer ----------
+  var viewerOverlay = document.getElementById("viewerOverlay");
+  var viewerBody = document.getElementById("viewerBody");
+  var viewerName = document.getElementById("viewerName");
+  document.getElementById("viewerClose").onclick = function(){
+    viewerOverlay.classList.remove("show");
+    viewerBody.innerHTML = "";
+  };
+  function openFile(f){
+    if(!f.blob){ showToast("Can't open this file"); return; }
+    var url = URL.createObjectURL(f.blob);
+    viewerName.textContent = f.name;
+    viewerBody.innerHTML = "";
+    var mime = f.mimeType || "";
+    if(mime.indexOf("image") === 0){
+      var img = document.createElement("img");
+      img.src = url;
+      viewerBody.appendChild(img);
+      viewerOverlay.classList.add("show");
+    } else if(mime === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")){
+      var frame = document.createElement("iframe");
+      frame.src = url;
+      viewerBody.appendChild(frame);
+      viewerOverlay.classList.add("show");
+    } else {
+      // No in-app viewer for this type (e.g. pptx/docx) — hand off to the OS.
+      var a = document.createElement("a");
+      a.href = url; a.download = f.name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      showToast("Downloading \u2014 open with your PPT/Word app");
+    }
+  }
+
+  // ---------- Toast ----------
+  var toastEl = document.getElementById("toast");
+  var toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  // ---------- Sheets ----------
+  var backdrop = document.getElementById("backdrop");
+  var openSheets = [];
+  function openSheet(el){
+    backdrop.classList.add("show");
+    el.classList.add("show");
+    openSheets.push(el);
+  }
+  function closeSheets(){
+    openSheets.forEach(function(el){ el.classList.remove("show"); });
+    openSheets = [];
+    backdrop.classList.remove("show");
+  }
+  backdrop.onclick = closeSheets;
+
+  // Add sheet
+  document.getElementById("fabBtn").onclick = function(){ openSheet(document.getElementById("addSheet")); };
+  document.getElementById("actNewFolder").onclick = function(){
+    closeSheets();
+    document.getElementById("newFolderInput").value = "";
+    openSheet(document.getElementById("newFolderSheet"));
+    setTimeout(function(){ document.getElementById("newFolderInput").focus(); }, 250);
+  };
+  document.getElementById("actUpload").onclick = function(){
+    closeSheets();
+    document.getElementById("fileInput").click();
+  };
+
+  document.getElementById("cancelNewFolder").onclick = closeSheets;
+  document.getElementById("confirmNewFolder").onclick = async function(){
+    var name = document.getElementById("newFolderInput").value.trim();
+    if(!name){ showToast("Enter a folder name"); return; }
+    await dbPut({ id: uid(), parentId: state.currentFolder, type:"folder", name: name, createdAt: Date.now() });
+    closeSheets();
+    renderAll();
+    showToast("Folder created");
+  };
+
+  document.getElementById("fileInput").onchange = async function(e){
+    var files = Array.from(e.target.files || []);
+    for(var i=0;i<files.length;i++){
+      var file = files[i];
+      await dbPut({
+        id: uid(), parentId: state.currentFolder, type:"file",
+        name: file.name, mimeType: file.type, size: file.size,
+        blob: file, createdAt: Date.now()
+      });
+    }
+    e.target.value = "";
+    renderAll();
+    showToast(files.length + " file" + (files.length>1?"s":"") + " added");
+  };
+
+  // Item menu (rename/move/delete)
+  var activeItem = null;
+  function openItemMenu(item){
+    activeItem = item;
+    document.getElementById("itemMenuTitle").textContent = item.name;
+    document.getElementById("menuOpen").style.display = item.type === "file" ? "flex" : "none";
+    openSheet(document.getElementById("itemMenuSheet"));
+  }
+  document.getElementById("menuOpen").onclick = function(){ closeSheets(); openFile(activeItem); };
+  document.getElementById("menuRename").onclick = function(){
+    closeSheets();
+    document.getElementById("renameInput").value = activeItem.name;
+    openSheet(document.getElementById("renameSheet"));
+    setTimeout(function(){ document.getElementById("renameInput").focus(); }, 250);
+  };
+  document.getElementById("cancelRename").onclick = closeSheets;
+  document.getElementById("confirmRename").onclick = async function(){
+    var name = document.getElementById("renameInput").value.trim();
+    if(!name){ showToast("Name can't be empty"); return; }
+    activeItem.name = name;
+    await dbPut(activeItem);
+    closeSheets();
+    renderAll();
+    showToast("Renamed");
+  };
+  document.getElementById("menuDelete").onclick = async function(){
+    closeSheets();
+    if(activeItem.type === "folder"){
+      await deleteFolderRecursive(activeItem.id);
+    } else {
+      await dbDelete(activeItem.id);
+    }
+    renderAll();
+    showToast("Deleted");
+  };
+  async function deleteFolderRecursive(folderId){
+    var children = await dbGetAllByParent(folderId);
+    for(var i=0;i<children.length;i++){
+      if(children[i].type === "folder"){ await deleteFolderRecursive(children[i].id); }
+      else { await dbDelete(children[i].id); }
+    }
+    await dbDelete(folderId);
+  }
+
+  // Move
+  document.getElementById("menuMove").onclick = async function(){
+    closeSheets();
+    await openMoveSheet();
+  };
+  async function openMoveSheet(){
+    var all = await dbGetAll();
+    var folders = all.filter(function(n){ return n.type === "folder"; });
+    var listEl = document.getElementById("moveList");
+    listEl.innerHTML = "";
+    // exclude the item itself and its own descendants (for folders)
+    var excluded = new Set();
+    if(activeItem.type === "folder"){
+      excluded.add(activeItem.id);
+      var stack = [activeItem.id];
+      while(stack.length){
+        var pid = stack.pop();
+        folders.forEach(function(f){ if(f.parentId === pid && !excluded.has(f.id)){ excluded.add(f.id); stack.push(f.id); } });
+      }
+    }
+    var options = [{id:"root", name:"Home"}].concat(folders.filter(function(f){ return f.id !== "root" && !excluded.has(f.id); }));
+    options.forEach(function(f){
+      var row = document.createElement("div");
+      row.className = "folder-pick-item";
+      var dot = document.createElement("div");
+      dot.className = "dot";
+      dot.style.background = f.id === "root" ? "var(--amber)" : colorForName(f.name);
+      row.appendChild(dot);
+      var label = document.createElement("div");
+      label.textContent = f.name;
+      row.appendChild(label);
+      row.onclick = async function(){
+        if(activeItem.parentId === f.id){ closeSheets(); return; }
+        activeItem.parentId = f.id;
+        await dbPut(activeItem);
+        closeSheets();
+        renderAll();
+        showToast("Moved to " + f.name);
+      };
+      listEl.appendChild(row);
+    });
+    openSheet(document.getElementById("moveSheet"));
+  }
+
+  // ---------- Init ----------
+  (async function init(){
+    await openDB();
+    await ensureRoot();
+    await renderAll();
+
+    var splash = document.getElementById("introSplash");
+    var seen = false;
+    try { seen = localStorage.getItem("sv_seen_intro") === "1"; } catch(e){}
+    if(seen){
+      splash.style.display = "none";
+    } else {
+      setTimeout(function(){
+        splash.classList.add("hide");
+        try { localStorage.setItem("sv_seen_intro", "1"); } catch(e){}
+        setTimeout(function(){ splash.style.display = "none"; }, 550);
+      }, 1400);
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
