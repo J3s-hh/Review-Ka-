@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MAG REVIEW IMBIS DI MA BWISET</title>
+<meta name="theme-color" content="#8b5cf6"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mag Review">
 <style>
 :root{--bg1:#fce7f3;--bg2:#f3e8ff;--bg3:#dbeafe;--card:#fff;--ink:#2d2650;--mute:#7b7399;--p:#8b5cf6;--pd:#6d28d9;--pl:#f3e8ff;--bd:#e9d5ff;--t:#2dd4bf;--td:#14948a;--tl:#ccfbf1;--ok:#15803d;--okl:#dcfce7;--bad:#dc2626;--badl:#fee2e2;--line:#e9d5ff;--sh:0 8px 0 rgba(0,0,0,.07),0 16px 26px -8px rgba(124,58,237,.25)}
 :root[data-theme=dark]{--bg1:#2a1a3d;--bg2:#1b1833;--bg3:#16233f;--card:#2a2548;--ink:#f1ecff;--mute:#b0a9d6;--p:#8b5cf6;--pd:#5b21b6;--pl:#3a3263;--bd:#4a4180;--tl:#1d4a49;--ok:#4ade80;--okl:#1b4a33;--bad:#fb7185;--badl:#55202c;--line:#4a4180}
@@ -79,11 +81,25 @@ label{display:block;font-weight:900;margin:12px 0 6px}
 @keyframes float{50%{transform:translateY(-5px)}}
 @media(max-width:520px){.brand small{display:none}.card{padding:16px;border-radius:24px}.row .btn{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+a.btn{text-decoration:none;display:inline-block}
+.step{display:flex;gap:12px;margin:16px 0;align-items:flex-start}.step>div{min-width:0;flex:1}
+.sn{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:0 3px 0 var(--pd)}
+details{background:var(--pl);border:3px solid var(--bd);border-radius:18px;padding:10px 16px;margin:10px 0}summary{cursor:pointer;font-weight:900}details ol{margin:8px 0 2px;padding-left:20px}
+.two{display:grid;gap:10px;grid-template-columns:1fr 2fr}@media(max-width:520px){.two{grid-template-columns:1fr}}
+.ft{max-width:780px;margin:0 auto;padding:0 16px 44px}
+.ft .card{margin:0;padding:16px 18px;border-radius:22px;text-align:center;font-size:.78rem;color:var(--mute);font-weight:700;line-height:1.6}
+.ft .card b{color:var(--ink)}
+.ft .card p{margin:6px 0 0}
 </style>
 </head>
 <body>
-<header class="hd"><div class="wrap"><div class="brand"><span class="balloon">🎈</span><div><h1>MAG REVIEW IMBIS DI MA BWISET 🚀</h1><small>Simple, easy and bubbly exam practice. Works offline!</small></div></div><div class="tools"><span class="pill" id="vis">…</span><button class="pill" id="snd" aria-label="Toggle sound">🔊</button><button class="pill" id="theme" aria-label="Toggle light or dark mode">🌙</button></div></div></header>
+<header class="hd"><div class="wrap"><div class="brand"><span class="balloon">🎈</span><div><h1>MAG REVIEW IMBIS DI MA BWISET 🚀</h1><small>Simple, easy and bubbly exam practice. Works offline!</small></div></div><div class="tools"><span class="pill" id="vis">…</span><button class="pill" id="helpb">📖 How to</button><button class="pill" id="snd" aria-label="Toggle sound">🔊</button><button class="pill" id="theme" aria-label="Toggle light or dark mode">🌙</button></div></div></header>
 <div class="wrap"><div id="sub" class="subw"></div><main id="app"></main></div>
+<footer class="ft"><div class="card">
+<b>⚠️ Disclaimer</b>
+<p>This app is <b>not affiliated with, endorsed by, sponsored by, or officially connected with</b> Bicol University, the BUCET Office, DOST-SEI, or any other university or government institution. It is made <b>solely as a personal reviewer tool</b> for study practice.</p>
+<p>Questions, the built-in preset, and any AI-generated content may contain errors — always double-check with your official review materials.</p>
+</div></footer>
 <input type="file" id="imp" accept=".json,application/json" hidden>
 <script>
 "use strict";
@@ -120,8 +136,9 @@ function parse(text) {
     else qs.push({ q: c.q, opts: c.opts.map(o => ({ t: o.t, c: o.c })), fb: c.fb.trim() });
     c = null;
   };
-  text.split(/\r?\n/).forEach(raw => {
+  text.replace(/\*\*/g, "").split(/\r?\n/).forEach(raw => {
     const l = raw.trim(); let m;
+    if (l.startsWith("```")) return;
     if ((m = l.match(/^Q\s*\d*\s*[:.)]\s*(.*)$/i))) { done(); c = { n: ++n, q: m[1], opts: [], fb: "" }; mode = "q"; }
     else if (!c) return;
     else if ((m = l.match(/^feedback\s*:\s*(.*)$/i))) { c.fb = m[1]; mode = "f"; }
@@ -153,7 +170,7 @@ const right = x => x.a !== null && x.opts[x.a].c;
 /* ---------- Views ---------- */
 function render() {
   $("#sub").innerHTML = (view === "quiz" || view === "result") && S ? `<span class="sub">${esc(S.title)}</span>` : "";
-  app.innerHTML = ({ home, editor, setup, quiz, result }[view])();
+  app.innerHTML = ({ home, editor, setup, quiz, result, help: helpView }[view])();
   window.scrollTo({ top: 0 });
 }
 
@@ -161,7 +178,7 @@ function home() {
   const open = S && !S.done ? `<div class="banner"><span>Unfinished: ${esc(S.title)} (question ${S.cur + 1} of ${S.qs.length})</span><span class="row" style="margin:0"><button class="btn t" data-act="resume">Resume</button><button class="btn g" data-act="discard">Discard</button></span></div>` : "";
   const cards = Q.map(z => `<div class="card quiz"><h3>${esc(z.title)}</h3><span class="mute">${z.qs.length} question${z.qs.length === 1 ? "" : "s"}${z.best != null ? " · best " + z.best + "%" : ""}</span>
     <div class="row"><button class="btn t" data-act="setup" data-id="${z.id}">Play</button><button class="btn g" data-act="edit" data-id="${z.id}">Edit</button><button class="btn r" data-act="del" data-id="${z.id}">Delete</button></div></div>`).join("");
-  return `${open}<div class="card hero"><span class="tg">Offline-ready reviewer</span><h2>Turn your reviewer notes into an interactive quiz! 🎯</h2><p class="mute" style="max-width:34em">Paste plain text, or load the BUCET preset, and study with no stress and no bwiset!</p><div class="row"><button class="btn" data-act="new">✨ Create new quiz</button><button class="btn t" data-act="preset">🎓 Load BUCET preset</button></div></div>
+  return `${open}<div class="card hero"><span class="tg">Offline-ready reviewer</span><h2>Turn your reviewer notes into an interactive quiz! 🎯</h2><p class="mute" style="max-width:34em">Paste plain text, or load the BUCET preset, and study with no stress and no bwiset!</p><div class="row"><button class="btn" data-act="new">✨ Create new quiz</button><button class="btn t" data-act="preset">🎓 Load BUCET preset</button><button class="btn g" data-act="help">📖 Tutorial</button><button class="btn g" data-act="install">📲 Install as app</button></div></div>
   <div class="row" style="margin:0 0 6px"><button class="btn g sm" data-act="export">Export backup</button><button class="btn g sm" data-act="import">Import backup</button></div>
   ${Q.length ? `<div class="grid">${cards}</div>` : `<div class="card score"><h2>No quizzes yet</h2><p class="mute">Tap “New quiz”, paste your questions, and start reviewing.</p></div>`}`;
 }
@@ -237,6 +254,16 @@ function result() {
 /* ---------- Actions ---------- */
 const A = {
   home() { view = "home"; render(); },
+  help() { view = "help"; render(); },
+  copy() {
+    const t = $("#pr"); t.select(); t.setSelectionRange(0, 99999);
+    const ok = () => toast("Prompt copied! 📋"), old = () => { try { document.execCommand("copy") ? ok() : toast("Press and hold the box, then tap Copy."); } catch (e) { toast("Press and hold the box, then tap Copy."); } };
+    navigator.clipboard ? navigator.clipboard.writeText(t.value).then(ok, old) : old();
+  },
+  install() {
+    if (!ip) { A.help(); setTimeout(() => toast("Follow the steps below to add it to your home screen 📲"), 300); return; }
+    ip.prompt(); ip.userChoice.finally(() => { ip = null; render(); });
+  },
   filter(d) { const y = scrollY; flt = d.f; render(); scrollTo(0, y); },
   preset() {
     const old = Q.find(q => q.id === "bucet"), r = parse(PRESET);
@@ -285,7 +312,14 @@ const A = {
   import() { $("#imp").click(); }
 };
 app.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b && A[b.dataset.act]) A[b.dataset.act](b.dataset); });
-app.addEventListener("input", e => { if (e.target.id === "x") preview(); });
+app.addEventListener("input", e => {
+  if (e.target.id === "x") preview();
+  else if (e.target.id === "pn" || e.target.id === "ps") {
+    const n = Math.max(1, Math.min(100, parseInt($("#pn").value) || 20)), sj = $("#ps").value.trim() || "General Mathematics";
+    LS.set("mrq_pn", n); LS.set("mrq_ps", sj); $("#pr").value = promptText(n, sj);
+  }
+});
+$("#helpb").onclick = () => A.help();
 $("#imp").addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
@@ -309,6 +343,51 @@ function confetti() {
     c.style.cssText = `left:${Math.random() * 100}vw;background:${cols[i % 5]};animation-duration:${2 + Math.random() * 2.5}s;animation-delay:${Math.random() * .6}s`;
     document.body.appendChild(c); setTimeout(() => c.remove(), 5500);
   }
+}
+
+/* ---------- Tutorial ---------- */
+const promptText = (n, s) => `Act as an expert college entrance test creator and quiz master. I need you to generate ${n} high-yield practice questions for ${s} tailored for the BUCET (Bicol University College Entrance Test).
+
+You MUST format your output strictly in this exact format for each question so it can be parsed by my quiz app:
+
+Q: [Write the question here clearly]
+A) [Option A text]
+B) [Option B text], correct
+C) [Option C text]
+D) [Option D text]
+Feedback: [Provide a short, clear explanation of why the correct answer is right]
+
+Important Rules:
+1. Make sure only ONE option has ", correct" at the end of it.
+2. Randomize which letter (A, B, C, or D) is marked as correct across the questions.
+3. Keep the feedback concise, educational, and easy to understand.
+4. Do not add any extra introduction or conclusion text, just output the formatted questions.
+5. Use plain text only: no bold, no markdown symbols, no code block.`;
+let ip = null;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); ip = e; if (view === "help") render(); });
+addEventListener("appinstalled", () => { ip = null; toast("App installed! 🎉"); if (view === "help") render(); });
+
+function helpView() {
+  const n = LS.get("mrq_pn", 20), sj = LS.get("mrq_ps", "General Mathematics");
+  const ai = [["ChatGPT", "https://chatgpt.com"], ["Claude", "https://claude.ai"], ["Gemini", "https://gemini.google.com"], ["Copilot", "https://copilot.microsoft.com"]]
+    .map(a => `<a class="btn g sm" href="${a[1]}" target="_blank" rel="noopener">${a[0]}</a>`).join(" ");
+  const st = (i, t, b) => `<div class="step"><span class="sn">${i}</span><div><b>${t}</b><div>${b}</div></div></div>`;
+  const stand = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const inst = stand ? `<div class="fb ok"><b>You are already using the app. 🎉</b></div>` : ip ? `<div class="row"><button class="btn t" data-act="install">📲 Install app now</button></div>` : "";
+  const loc = location.protocol === "file:" ? `<p class="mute">You opened this as a file on your device. The install options below only appear when you open the website link.</p>` : "";
+  return `<div class="card"><h2>🤖 Part 1: Make questions with AI</h2><p class="mute">No need to type every question. Let a free AI chat write them for you in 5 easy steps.</p>
+  ${st(1, "Pick an AI", `<p class="mute" style="margin:4px 0 8px">Any free one works. Open it in a new tab (needs internet).</p><div class="row" style="margin:0">${ai}</div>`)}
+  ${st(2, "Fill in the blanks", `<div class="two"><div><label for="pn" style="margin-top:4px">How many?</label><input type="text" id="pn" inputmode="numeric" maxlength="3" value="${n}"></div><div><label for="ps" style="margin-top:4px">Subject or topic</label><input type="text" id="ps" maxlength="80" value="${esc(sj)}" placeholder="e.g. Biology, English Grammar"></div></div>`)}
+  ${st(3, "Copy the prompt", `<textarea id="pr" readonly style="min-height:250px;margin-top:6px">${esc(promptText(n, sj))}</textarea><div class="row" style="margin-top:12px"><button class="btn t" data-act="copy">📋 Copy prompt</button></div>`)}
+  ${st(4, "Paste it in the AI chat and send", `<p class="mute" style="margin:4px 0">Wait for the answer, then copy the whole reply (most AIs have a copy button under it).</p>`)}
+  ${st(5, "Paste it here", `<p class="mute" style="margin:4px 0">Tap <b>Create new quiz</b>, type a title, and paste the reply in the big box. The preview should say “${n} valid questions found”. Then tap <b>Save quiz</b> and play!</p><div class="fb"><b>Tip:</b> if the preview shows a warning, tell the AI: “Please fix the format of question 3 and 7.”</div><div class="row"><button class="btn" data-act="new">✨ Create new quiz</button></div>`)}
+  </div>
+  <div class="card"><h2>📱 Part 2: Use it like a real app</h2><p class="mute">Open the website link in your browser first, then follow your device. After that it opens from your home screen and works offline.</p>${loc}${inst}
+  <details><summary>📱 Android (Chrome)</summary><ol><li>Tap the ⋮ menu at the top right.</li><li>Tap <b>Install app</b> (or <b>Add to Home screen</b>).</li><li>Tap <b>Install</b>. The icon appears on your home screen.</li></ol></details>
+  <details><summary>🍎 iPhone / iPad (Safari)</summary><ol><li>Open the link in <b>Safari</b> (other browsers can’t do this on iPhone).</li><li>Tap the <b>Share</b> button (the square with an arrow).</li><li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol></details>
+  <details><summary>💻 Laptop (Chrome or Edge)</summary><ol><li>Look for the small install icon at the right end of the address bar and click it.</li><li>No icon? Open the ⋮ menu and choose <b>Install</b> (or <b>Save and share</b> → <b>Install page as app</b>).</li><li>Click <b>Install</b>.</li></ol></details>
+  <div class="fb"><b>Good to know:</b> your quizzes are saved on this device only. Use <b>Export backup</b> on the home screen before clearing your browser data or changing phones.</div>
+  <div class="row"><button class="btn g" data-act="home">🏠 Back to home</button></div></div>`;
 }
 
 /* ---------- Sound ---------- */
@@ -378,6 +457,7 @@ $("#theme").onclick = () => theme(document.documentElement.dataset.theme === "da
   } catch (e) { /* offline or blocked: keep the local counter */ }
 })();
 
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
 render();
 </script>
 </body>
